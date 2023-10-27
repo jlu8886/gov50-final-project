@@ -9,7 +9,7 @@ output:
 
 
 
-## Project thoughts
+## Project Thoughts
 
 I'm interested in exploring data related to cities in the United States -- specifically, items such as public transport systems, land use, green space, and walkability. I'd like to explore the relationship between factors like demographics or income and the way in which people interact with the space around them in an urban environment.
 
