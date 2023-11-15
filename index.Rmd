@@ -19,18 +19,20 @@ I'm interested in exploring data related to cities in the United States -- speci
 How has public transport been impacted by the COVID-19 pandemic? More specifically, which form of public transport has been hit the hardest? I'm interested in studying the extent to which ridership has/has not recovered since the pandemic. In this study, I plan to examine data from the New York City Metropolitan Transportation Authority (MTA), containing statistics on ridership and the corresponding proportion of pre-pandemic ridership levels for each of the forms of public transport offered under the MTA in the greater New York City metropolitan area. I hypothesize that the Subway form of public transport suffered the largest impact on ridership from the pandemic, due to it having the highest ridership levels relative to all other forms of public transport, as well as the unavoidable proximity to others its riders must endure, and as a consequence, is likely viewed to be of highest-risk. The explanatory variable of interest is the date and time of each measurement -- data on ridership has been collected daily since March 1st, 2020. My outcome variable of interest is the "% of Comparable Pre-Pandemic Day" values for each of the forms of public transport. This is found by measuring daily ridership, then estimating as a percentage of ridership on that particular form of public transport on an equivalent day prior to the COVID-19 pandemic. Observing that Subways had a larger decline in "% of Comparable Pre-Pandemic Day" values than other forms of public transport would provide support for my hypothesis. However, observing that forms of public transport, such as Buses or other light-rail systems, had larger declines in "% of Comparable Pre-Pandemic Day" values than that of Subways would disprove my hypothesis.
 
 
-## Data Visualization
+## Subway Ridership Visualization
 
-The following graph shows the distribution of "% of Comparable Pre-Pandemic Day" values for each daily ridership measurement taken from March 1st, 2020 until October 22nd, 2023 (when this dataset was downloaded).
+The following graph shows the distribution of "% of Comparable Pre-Pandemic Day" values for each daily Subway ridership measurement taken from March 1st, 2020 until October 22nd, 2023 (when this dataset was downloaded).
 ```{r setup, include = FALSE}
 options(width = 100)
 library(tidyverse)
+library(dplyr)
+library(ggplot2)
 ```
 
 ```{r}
 ridership <- read_csv("data/ridership.csv")
 
-ridership_plot <- ridership |>
+subway_ridership_plot <- ridership |>
   mutate(
     Days = row_number()
   ) |>
@@ -42,5 +44,38 @@ ridership_plot <- ridership |>
     x = "Days since March 1st, 2020",
     y = "Subways: % of Comparable Pre-Pandemic Day"
   )
+subway_ridership_plot
+```
+
+
+## Transport Types Ridership Visualization
+The following shows the graph of % Comparable Pre-Pandemic Day values from March 1st, 2020 until October 22nd, 2023 for each form of transportation. The lines should each start at a y-value of 1, but because measurements began on March 1st and COVID restrictions quickly hit soon after the start of data collection, the geom_smooth() function makes it appear as though the % Comparable Pre-Pandemic Day values start at far less than 1. The legend used to interpret the following visualization is: Subways (red), Buses (blue), LIRR (green), Metro-North (purple), Bridges and Tunnels (turquoise), Staten Island Railway (brown).
+
+As seen in the graph, buses were initially most severely impacted by the pandemic, with their % of Comparable Pre-Pandemic Day measurements dropping the most relative to any other form of transportation. Other forms of transport, such as the subway (red), LIRR (green), Metro-North (purple), and Staten Island Railway (brown), also had significant drops in ridership relative to a comparable pre-pandemic day. However, Bridges and Tunnels (turquoise) and Access-a-Ride (pink) had relative increases in ridership, which make sense, given individuals worried about transmission tended to prefer forms of transport that are not as close-contact as subways or buses. Following the % of Comparable Pre-Pandemic Day measurements for each of the forms of transport over time, we can see that Bridges and Tunnels (turquoise) and Access-a-Ride (pink) ridership levels have recovered to near pre-pandemic levels; however, other forms of public transport such as subways (red), buses (blue), and the Staten Island Railway (brown) are still suffering the effects of the pandemic with ridership levels hovering at around 60% of pre-pandemic levels.
+
+```{r}
+ridership_plot <- ridership |>
+  mutate(
+    Days = row_number()
+  ) |>
+  slice(1:1331) |>
+  ggplot(aes(x = Days)) +
+  geom_smooth(aes(y = `Subways: % of Comparable Pre-Pandemic Day`),
+              color = "red") +
+  geom_smooth(aes(y = `Buses: % of Comparable Pre-Pandemic Day`), 
+                  color = "blue") +
+  geom_smooth(aes(y = `LIRR: % of Comparable Pre-Pandemic Day`), 
+                  color = "darkgreen") +
+  geom_smooth(aes(y = `Metro-North: % of Comparable Pre-Pandemic Day`), 
+                  color = "darkorchid3") +
+  geom_smooth(aes(y = `Access-A-Ride: % of Comparable Pre-Pandemic Day`), 
+                  color = "deeppink3") +
+  geom_smooth(aes(y = `Bridges and Tunnels: % of Comparable Pre-Pandemic Day`), 
+              color = "darkslategray3") +
+  geom_smooth(aes(y = `Staten Island Railway: % of Comparable Pre-Pandemic Day`), 
+              color = "tomato4") +
+  labs(
+    x = "Days since March 1st, 2020",
+    y = "% of Comparable Pre-Pandemic Day")
 ridership_plot
 ```
