@@ -50,33 +50,40 @@ subway_ridership_plot
 
 ## Transport Types Ridership Visualization
 
-The following shows the graph of % Comparable Pre-Pandemic Day values from March 1st, 2020 until October 22nd, 2023 for each form of transportation. The lines should each start at a y-value of 1, but because measurements began on March 1st and COVID restrictions quickly hit soon after the start of data collection, the geom_smooth() function makes it appear as though the % Comparable Pre-Pandemic Day values start at far less than 1. The legend used to interpret the following visualization is: Subways (red), Buses (blue), LIRR (green), Metro-North (purple), Bridges and Tunnels (turquoise), Staten Island Railway (brown).
+The following shows the graph of % Comparable Pre-Pandemic Day values from March 1st, 2020 until October 22nd, 2023 for each form of transportation. The lines should each start at a y-value of 1, but because measurements began on March 1st and COVID restrictions quickly hit soon after the start of data collection, the geom_smooth() function makes it appear as though the % Comparable Pre-Pandemic Day values start at far less than 1. 
 
-As seen in the graph, buses were initially most severely impacted by the pandemic, with their % of Comparable Pre-Pandemic Day measurements dropping the most relative to any other form of transportation. Other forms of transport, such as the subway (red), LIRR (green), Metro-North (purple), and Staten Island Railway (brown), also had significant drops in ridership relative to a comparable pre-pandemic day. However, Bridges and Tunnels (turquoise) and Access-a-Ride (pink) had relative increases in ridership, which make sense, given individuals worried about transmission tended to prefer forms of transport that are not as close-contact as subways or buses. Following the % of Comparable Pre-Pandemic Day measurements for each of the forms of transport over time, we can see that Bridges and Tunnels (turquoise) and Access-a-Ride (pink) ridership levels have recovered to near pre-pandemic levels; however, other forms of public transport such as subways (red), buses (blue), and the Staten Island Railway (brown) are still suffering the effects of the pandemic with ridership levels hovering at around 60% of pre-pandemic levels.
+As seen in the graph, buses were initially most severely impacted by the pandemic, with their % of Comparable Pre-Pandemic Day measurements dropping the most relative to any other form of transportation. Other forms of transport, such as the subway, LIRR, Metro-North, and Staten Island Railway, also had significant drops in ridership relative to a comparable pre-pandemic day. However, Bridges and Tunnels and Access-a-Ride had relative increases in ridership, which make sense, given individuals worried about transmission tended to prefer forms of transport that are not as close-contact as subways or buses. Following the % of Comparable Pre-Pandemic Day measurements for each of the forms of transport over time, we can see that Bridges and Tunnels and Access-a-Ride ridership levels have recovered to near pre-pandemic levels; however, other forms of public transport such as subways, buses, and the Staten Island Railway are still suffering the effects of the pandemic with ridership levels hovering at around 60% of pre-pandemic levels.
 
 ```{r}
-ridership_plot <- ridership |>
-  mutate(
-    Days = row_number()
-  ) |>
-  slice(1:1331) |>
-  ggplot(aes(x = Days)) +
-  geom_smooth(aes(y = `Subways: % of Comparable Pre-Pandemic Day`),
-              color = "red") +
-  geom_smooth(aes(y = `Buses: % of Comparable Pre-Pandemic Day`), 
-                  color = "blue") +
-  geom_smooth(aes(y = `LIRR: % of Comparable Pre-Pandemic Day`), 
-                  color = "darkgreen") +
-  geom_smooth(aes(y = `Metro-North: % of Comparable Pre-Pandemic Day`), 
-                  color = "darkorchid3") +
-  geom_smooth(aes(y = `Access-A-Ride: % of Comparable Pre-Pandemic Day`), 
-                  color = "deeppink3") +
-  geom_smooth(aes(y = `Bridges and Tunnels: % of Comparable Pre-Pandemic Day`), 
-              color = "darkslategray3") +
-  geom_smooth(aes(y = `Staten Island Railway: % of Comparable Pre-Pandemic Day`), 
-              color = "tomato4") +
+ridership_df <- as.data.frame(t(ridership))
+
+names(ridership_df) <- ridership_df[1,]
+
+ridership_df <- ridership_df[c(-1,-2,-4,-6,-8,-10,-12,-14),]
+
+ridership_df$type <- rownames(ridership_df)
+
+ridership_prop <- ridership_df |>
+  pivot_longer(!type, names_to = "date", values_to = "percentage")
+
+ridership_prop$type <- gsub(
+  ": % of Comparable Pre-Pandemic Day", 
+  "", 
+  as.character(ridership_prop$type))
+
+ridership_prop$percentage <- as.numeric(ridership_prop$percentage)
+
+ridership_prop$date <- as.Date(ridership_prop$date,"%m/%d/%Y")
+
+ridership_prop <- ridership_prop |>
+  na.omit()
+
+ridership_prop |>
+  group_by(type) |>
+  ggplot() + 
+  geom_smooth(aes(date, percentage, group = type, color = type)) +
   labs(
-    x = "Days since March 1st, 2020",
-    y = "% of Comparable Pre-Pandemic Day")
-ridership_plot
+    x = "Date",
+    y = "% of Comparable Pre-Pandemic Day"
+  )
 ```
