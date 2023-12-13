@@ -10,13 +10,14 @@ output:
 ## Introduction
 As we approach four years since the start of the COVID-19 pandemic, our world seems to have returned to normalcy – or, at least, a new normal. There is no question that the pandemic touched multiple facets of our lives, from the way in which we learn, to the forms of interactions that maintain our interpersonal relationships. However, lingering effects of the pandemic still remain, like the rise of remote/hybrid work models even as many have returned to the office. One such lingering effect is seen in public transportation. Public transportation, especially in large cities, is the way in which thousands of people interact and cross paths with each other on a daily basis, so it’s natural that ridership levels took a hit during the pandemic. However, in the time since, has ridership recovered? 
 
-In this study, I’m interested in exploring the extent to which public transport has been impacted by the COVID-19 pandemic. More specifically, which form of public transport has been hit the hardest? I plan to examine data from the New York Metropolitan Transportation Authority (MTA), containing statistics on ridership and the corresponding proportion of pre-pandemic ridership levels for each of the forms of public transport offered under the MTA in the greater New York City metropolitan area. I hypothesize that the Subway form of public transport suffered the largest impact on ridership from the pandemic, due to it having the highest ridership levels relative to all other forms of public transport, as well as the unavoidable proximity riders experience, and as a consequence, is likely viewed to be of highest-risk.
+In this analysis, I’m interested in exploring the extent to which public transport has been impacted by the COVID-19 pandemic. More specifically, which form of public transport has been hit the hardest? I plan to examine data from the New York Metropolitan Transportation Authority (MTA), containing statistics on ridership and the corresponding proportion of pre-pandemic ridership levels for each of the forms of public transport offered under the MTA in the greater New York City metropolitan area. I hypothesize that the Subway form of public transport suffered the largest impact on ridership from the pandemic, due to it having the highest ridership levels relative to all other forms of public transport, as well as the unavoidable proximity riders experience, and as a consequence, is likely viewed to be of highest-risk.
 
 ## Data
-The MTA is a public benefit corporation responsible for public transportation in the state of New York. This dataset provides systemwide ridership and traffic estimates for subways (including the Staten Island Railway), buses, Long Island Rail Road, Metro-North Railroad, Access-A-Ride, and Bridges and Tunnels, beginning March 1st, 2020 (April 1st, 2020 for LIRR and Metro-North), and provides a percentage comparison against a comparable pre-pandemic date (the equivalent month in 2019). Ridership figures (and subsequently, the `% of Comparable Pre-Pandemic Day` values [the dependent variable in this study]) are determined through what can be generalized as a census method -- a combination of MetroCard, OMNY swipes/taps, ticket sales, scheduled trips, and toll collection systems -- tracked over time (the independent variable) on a daily basis from March 1st, 2020 to present.
+The MTA is a public benefit corporation responsible for public transportation in the state of New York. This dataset provides systemwide ridership and traffic estimates for subways (including the Staten Island Railway), buses, Long Island Rail Road, Metro-North Railroad, Access-A-Ride, and Bridges and Tunnels, beginning March 1st, 2020 (April 1st, 2020 for LIRR and Metro-North), and provides a percentage comparison against a comparable pre-pandemic date (the equivalent month in 2019). Ridership figures (and subsequently, the `% of Comparable Pre-Pandemic Day` values [the dependent variable in this analysis]) are determined through what can be generalized as a census method -- a combination of MetroCard, OMNY swipes/taps, ticket sales, scheduled trips, and toll collection systems -- tracked over time (the independent variable) on a daily basis from March 1st, 2020 to present.
 
-The research design for this study follows the differences-in-differences method, with the "treatment" being the pandemic, the "treatment group" being the ridership levels pre-pandemic (2019 data), and the "control group" being the ridership levels after the onset of the pandemic (post-March 1st, 2020). Through the differences-in-differences research design, we are able to measure the effect the "treatment" (the pandemic) had on ridership over time. Below is a boxplot summarizing the `% of Comparable Pre-Pandemic Day` values for each type of transportation. As seen in the boxplot, the median `% of Comparable Pre-Pandemic Day` value hovers around 50-60% for most forms of transport, with some notably high exceptions for Bridges and Tunnels and Access-a-Ride.
+This analysis follows a longitudinal study method, as we are observing the same sample (ridership levels for each of the forms of transport) over an extended period of time (2020 to present) and are collecting this data without direct "treatment". However, the "treatment" in this analysis can be seen as being the pandemic, the "treatment group" being the ridership levels pre-pandemic (2019 data), and the "control group" being the ridership levels after the onset of the pandemic (post-March 1st, 2020). Through the longitudinal research design, we are able to measure the effect the "treatment" (the pandemic) had on ridership over time. Below is a boxplot summarizing the `% of Comparable Pre-Pandemic Day` values for each type of transportation. As seen in the following boxplot, the median `% of Comparable Pre-Pandemic Day` value hovers around 50-60% for most forms of transport, with some notably high exceptions for Bridges and Tunnels and Access-a-Ride.
 
+### Tidying the Data
 ```{r setup}
 options(width = 100)
 library(tidyverse)
@@ -52,14 +53,15 @@ ridership_prop <- ridership_prop |>
   na.omit()
 ```
 
-### % of Comparable Pre-Pandemic Day Values, by type
+### Summary Boxplot of Dependent Variable
 ``` {r}
 ridership_prop |>
   ggplot(aes(x = type, y = percentage)) +
   geom_boxplot() +
   labs(
     x = "Type of Transport",
-    y = "% of Comparable Pre-Pandemic Day"
+    y = "% of Comparable Pre-Pandemic Day",
+    title = "% of Comparable Pre-Pandemic Day Values, by Type of Transport"
   ) +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
 
@@ -70,7 +72,7 @@ Below is a scatterplot graph with lines of best fit (individual points removed t
 
 As seen in the graph, buses were initially most severely impacted by the pandemic, with their `% of Comparable Pre-Pandemic Day` measurements dropping the most relative to any other form of transportation. Other forms of transport, such as the subway, LIRR, Metro-North, and Staten Island Railway, also had significant drops in ridership relative to a comparable pre-pandemic day. However, Bridges and Tunnels and Access-a-Ride had relative increases in ridership, which make sense, given individuals worried about transmission tended to prefer forms of transport that are not as close-contact as subways or buses. Following the `% of Comparable Pre-Pandemic Day` measurements for each of the forms of transport over time, we can see that Bridges and Tunnels and Access-a-Ride ridership levels have recovered to near pre-pandemic levels; however, other forms of public transport such as subways, buses, and the Staten Island Railway are still suffering the effects of the pandemic with ridership levels hovering at around 60% of pre-pandemic levels.
 
-### % of Comparable Pre-Pandemic Day Values, over time
+### Main Relationship of Interest Plot
 ```{r}
 ridership_prop |>
   group_by(type) |>
@@ -79,6 +81,7 @@ ridership_prop |>
   labs(
     x = "Date",
     y = "% of Comparable Pre-Pandemic Day",
+    title = "% of Comparable Pre-Pandemic Day Values, by Type of Transport",
     col = "Type of Transport"
   )
 ```
